@@ -1,6 +1,6 @@
 {
   "name": "@arraypress/slug",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "URL slug generation with transliteration, collision handling, and flexible options.",
   "type": "module",
   "main": "src/index.js",
@@ -11,11 +11,20 @@
       "types": "./src/index.d.ts"
     }
   },
-  "files": ["src"],
+  "files": [
+    "src"
+  ],
   "scripts": {
     "test": "node --test tests/slug.test.js"
   },
-  "keywords": ["slug", "url", "permalink", "slugify", "sanitize", "unique"],
+  "keywords": [
+    "slug",
+    "url",
+    "permalink",
+    "slugify",
+    "sanitize",
+    "unique"
+  ],
   "author": "David Sherlock",
   "license": "MIT",
   "repository": {

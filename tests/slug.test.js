@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { slugify, uniqueSlug, isValidSlug, STOP_WORDS } from '../src/index.js';
+import { slugify, uniqueSlug, isValidSlug, STOP_WORDS, formatLabel } from '../src/index.js';
 
 // ── slugify ─────────────────────────────────
 
@@ -219,5 +219,43 @@ describe('STOP_WORDS', () => {
 
   it('works with slugify', () => {
     assert.equal(slugify('The Art of War', { stopWords: STOP_WORDS }), 'art-war');
+  });
+});
+
+// ── formatLabel ─────────────────────────────
+
+describe('formatLabel', () => {
+  it('simple two-word slug', () => assert.equal(formatLabel('future-bass'), 'Future Bass'));
+  it('three-word slug', () => assert.equal(formatLabel('hello-world-foo'), 'Hello World Foo'));
+  it('single-word slug', () => assert.equal(formatLabel('uplifting'), 'Uplifting'));
+  it('numeric-leading token kept lowercase', () =>
+    assert.equal(formatLabel('138bpm'), '138bpm'));
+  it('numeric-leading mixed with words', () =>
+    assert.equal(formatLabel('138bpm-trance'), '138bpm Trance'));
+  it('custom separator', () =>
+    assert.equal(formatLabel('sound_design', { separator: '_' }), 'Sound Design'));
+  it('preserve case from array', () =>
+    assert.equal(
+      formatLabel('ai-tools', { preserveCase: ['AI'] }),
+      'AI Tools',
+    ));
+  it('preserve case from Set', () =>
+    assert.equal(
+      formatLabel('daw-midi-export', { preserveCase: new Set(['DAW', 'MIDI']) }),
+      'DAW MIDI Export',
+    ));
+  it('preserves stop words for display (unlike slugify)', () =>
+    assert.equal(formatLabel('best-of-the-year'), 'Best Of The Year'));
+  it('lowercases tokens that arrive uppercase', () =>
+    assert.equal(formatLabel('FUTURE-BASS'), 'Future Bass'));
+  it('drops empty segments from double separator', () =>
+    assert.equal(formatLabel('hello--world'), 'Hello World'));
+  it('null → empty', () => assert.equal(formatLabel(null), ''));
+  it('undefined → empty', () => assert.equal(formatLabel(undefined), ''));
+  it('empty → empty', () => assert.equal(formatLabel(''), ''));
+  it('round-trips with slugify for ASCII inputs', () => {
+    const original = 'Future Bass';
+    const slug = slugify(original);
+    assert.equal(formatLabel(slug), original);
   });
 });

@@ -190,3 +190,67 @@ export const STOP_WORDS = [
   'of', 'with', 'by', 'is', 'it', 'as', 'be', 'was', 'are', 'been',
   'from', 'has', 'have', 'had', 'not', 'this', 'that', 'will', 'can',
 ];
+
+/**
+ * Convert a slug back into a human-readable Title Case label.
+ * The inverse of `slugify` for display purposes — splits on the
+ * separator and Title-Cases each token.
+ *
+ * Unlike `slugify`, this preserves stop words because they're
+ * usually part of the proper display name (e.g. "Best of the Year"
+ * shouldn't render as "Best Year").
+ *
+ * Use it for taxonomy archive headings (`/tags/future-bass` → "Future Bass"),
+ * breadcrumb labels, sitemap entries — anywhere you have a slug and
+ * need a display string and don't have the original title cached.
+ *
+ * @param {string|undefined|null} slug - The slug to humanise.
+ * @param {Object} [options]
+ * @param {string} [options.separator='-'] - The slug's word separator.
+ * @param {Set<string>|string[]} [options.preserveCase] - Words that
+ *   should NOT be auto-Title-Cased (acronyms, brand names). Pass
+ *   `['AI', 'DAW', 'MIDI']` and they'll render as-is.
+ * @returns {string} The display label.
+ *
+ * @example
+ * formatLabel('future-bass')                // 'Future Bass'
+ * formatLabel('138bpm')                     // '138bpm' (numeric-leading: untouched)
+ * formatLabel('hello-world')                // 'Hello World'
+ * formatLabel('sound_design', { separator: '_' })  // 'Sound Design'
+ * formatLabel('ai-tools', { preserveCase: ['AI'] }) // 'AI Tools'
+ * formatLabel(undefined)                    // ''
+ */
+export function formatLabel(slug, options = {}) {
+  if (!slug || typeof slug !== 'string') return '';
+
+  const { separator = '-', preserveCase } = options;
+
+  /* Case-insensitive lookup: lowercase form → preferred casing.
+   * Lets the consumer pass `['AI', 'DAW']` and have those match
+   * against the lowercase tokens that come out of `slug.split(...)`. */
+  let preserveMap = null;
+  if (preserveCase) {
+    preserveMap = new Map();
+    for (const word of preserveCase) {
+      preserveMap.set(word.toLowerCase(), word);
+    }
+  }
+
+  return slug
+    .split(separator)
+    .filter(Boolean)
+    .map((word) => {
+      const wordLower = word.toLowerCase();
+      /* Preserve known acronyms / brand names — using the original
+       * casing the consumer supplied. */
+      if (preserveMap && preserveMap.has(wordLower)) {
+        return preserveMap.get(wordLower);
+      }
+      /* Numeric-leading tokens (e.g. "138bpm", "4k") get no
+       * case-change — they read fine in lowercase and Title-Casing
+       * the leading digit would do nothing anyway. */
+      if (/^\d/.test(word)) return wordLower;
+      return word[0].toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(' ');
+}

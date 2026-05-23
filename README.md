@@ -76,6 +76,25 @@ import { slugify, STOP_WORDS } from '@arraypress/slug';
 slugify('The Art of War', { stopWords: STOP_WORDS }) // 'art-war'
 ```
 
+### `formatLabel(slug, options?)`
+
+Convert a slug back into a Title Case display label — the inverse of `slugify` for display purposes.
+
+```js
+import { formatLabel } from '@arraypress/slug';
+
+formatLabel('future-bass')                              // 'Future Bass'
+formatLabel('best-of-the-year')                         // 'Best Of The Year'
+formatLabel('138bpm-trance')                            // '138bpm Trance'  (numeric-leading token kept lowercase)
+formatLabel('sound_design', { separator: '_' })         // 'Sound Design'
+formatLabel('ai-tools', { preserveCase: ['AI'] })       // 'AI Tools'
+formatLabel('daw-midi-export', { preserveCase: ['DAW', 'MIDI'] })  // 'DAW MIDI Export'
+```
+
+Use for taxonomy archive headings (`/tags/future-bass` → "Future Bass"), breadcrumbs, sitemap entries — anywhere you have a slug and don't have the original title cached. Unlike `slugify`, it **preserves stop words** because they're usually part of the proper display name.
+
+`preserveCase` matches case-insensitively against tokens, so passing `['AI', 'DAW']` matches lowercase `ai`/`daw` tokens in the slug.
+
 ## Transliteration
 
 Built-in support for Latin accented, German, Nordic, Turkish, Polish, Czech, and common symbols. `&` → `and`, `@` → `at`, `€` → `eur`, `£` → `gbp`, `©` → `c`, etc.

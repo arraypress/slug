@@ -35,3 +35,24 @@ export function isValidSlug(slug: string, options?: { separator?: string }): boo
 
 /** Common English stop words. */
 export const STOP_WORDS: string[];
+
+export interface FormatLabelOptions {
+  /** The slug's word separator. Default: '-' */
+  separator?: string;
+  /** Words to keep verbatim (acronyms, brand names). */
+  preserveCase?: Set<string> | string[];
+}
+
+/**
+ * Convert a slug back into a human-readable Title Case label.
+ * Inverse of `slugify` for display.
+ *
+ * @example
+ * formatLabel('future-bass')                          // 'Future Bass'
+ * formatLabel('ai-tools', { preserveCase: ['AI'] })   // 'AI Tools'
+ * formatLabel('sound_design', { separator: '_' })     // 'Sound Design'
+ */
+export function formatLabel(
+  slug: string | undefined | null,
+  options?: FormatLabelOptions
+): string;
